@@ -1,0 +1,22 @@
+apiVersion: debezium.io/v1
+kind: DebeziumServer
+metadata:
+  name: server-cr
+  namespace: dbz-test
+spec:
+  version: "1.6"
+  replicas: 1
+  config:
+     configMapName: server-configmap
+     secretName: server-secret
+  sourceSystem:
+     service:
+        name: mysql-service
+        port: 3306
+        namespace: dbz-test
+  targetSystem:
+     service:
+           name: kafka-service
+           port: 9092
+           namespace: dbz-test
+  

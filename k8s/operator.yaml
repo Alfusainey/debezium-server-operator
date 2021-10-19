@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ds
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ds
+  namespace: ds
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ds
+  namespace: ds
+spec:
+  selector:
+    matchLabels:
+      app: ds
+  template:
+    metadata:
+      labels:
+        app: ds
+    spec:
+      serviceAccountName: ds
+      containers:
+      - name: ds
+        image: alfu/debezium-server-operator:1.8.0-SNAPSHOT
+        imagePullPolicy: Always #IfNotPresent
+---
+# Creates a global policy role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ds
+rules:
+- apiGroups:
+  - ""
+  - "extensions"
+  - "apps"
+  resources:
+  - deployments
+  - services
+  - pods
+  - pods/exec # TODO: do we need this?
+  verbs:
+  - '*'
+- apiGroups:
+  - "apiextensions.k8s.io"
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - '*'
+- apiGroups:
+  - "debezium.io"
+  resources:
+  - debeziumservers
+  - debeziumservers/status
+  verbs:
+  - '*'
+---
+# And grant the global role to the service-account used by the operator application
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ds-admin
+subjects:
+- kind: ServiceAccount
+  name: ds
+  namespace: ds
+roleRef:
+  kind: ClusterRole
+  name: ds
+  apiGroup: ""

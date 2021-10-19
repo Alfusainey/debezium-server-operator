@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-secret
+  namespace: default
+type: Opaque
+data:
+  MYSQL_USER: bXlzcWx1c2Vy
+  MYSQL_PASSWORD: bXlzcWxwdw==
+  MYSQL_ROOT_PASSWORD: ZGViZXppdW0=
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+  namespace: default
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app: mysql
+  ports:
+  - port: 3306
+    targetPort: 3306
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  namespace: default
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # do not scale the mysql server to multiple instances
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+       name: mysql-pod
+       labels:
+         app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: debezium/example-mysql:1.7
+        ports:
+        - containerPort: 3306
+        envFrom:
+        - secretRef:
+            name: mysql-secret
+        volumeMounts:
+          - name: mysql-persistence-storage
+            mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-persistence-storage
+        hostPath:
+          # directory location on host
+          path: /mnt/data

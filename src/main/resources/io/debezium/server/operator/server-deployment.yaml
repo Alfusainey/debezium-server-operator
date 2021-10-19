@@ -1,0 +1,16 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ""
+  namespace: ""
+spec:
+  replicas: 1 # At the moment, we only allow a single replica
+  selector:
+    matchLabels:
+      app: "server"
+  template:
+    metadata:
+      name: "server"
+      labels:
+        app: "server"
+        

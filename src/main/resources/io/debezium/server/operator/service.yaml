@@ -1,0 +1,9 @@
+# Service definition for both source and sink services
+apiVersion: v1
+kind: Service
+metadata:
+  name: ""
+spec:
+  type: ClusterIP
+  selector:
+    app: ""

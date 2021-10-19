@@ -1,0 +1,126 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  # name must match the spec fields below, and be in the form: <plural>.<group>
+  name: debeziumservers.debezium.io
+spec:
+  # group name to use for REST API: /apis/<group>/<version>
+  group: debezium.io
+  # list of versions supported by this CustomResourceDefinition
+  names:
+    # plural name to be used in the URL: /apis/<group>/<version>/<plural>
+    plural: debeziumservers
+    # singular name to be used as an alias on the CLI and for display
+    singular: debeziumserver
+    # kind is normally the CamelCased singular type. Your resource manifests use this.
+    kind: DebeziumServer
+    # shortNames allow shorter string to match your resource on the CLI
+    shortNames:
+    - dbs # ds is already a shortName for DaemonSets
+  scope: Namespaced
+  versions:
+  - name: v1
+    # Each version can be enabled/disabled by Served flag.
+    served: true
+    # One and only one version must be marked as the storage version.
+    storage: true
+    #subresources:
+    #  # status enables the status subresource.
+    #  status: {}
+    
+    additionalPrinterColumns:
+    - name: Ready
+      type: string
+      description: Whether the server deployment is up and running. Value reflects the latest state of the deployment.
+      jsonPath: .status.ready
+    - name: Connected To Source
+      type: boolean
+      description: Whether the server established a successful connection to the source system.
+      jsonPath: .status.connectedToSource
+    - name: Connected To Sink
+      type: boolean
+      description: Whether the server established a successful connection to the sink system.
+      jsonPath: .status.connectedToSink
+    schema:
+      openAPIV3Schema:
+        type: object
+        required: [spec]
+        properties:
+          spec:
+            type: object
+            required: [version, config, sourceSystem, targetSystem]
+            description: Spec is the desired state of the DebeziumServer. The spec describes the type of deployment of the debezium-server application the user wishes to use.
+            properties:
+              replicas:
+                type: integer
+                description: The number of replicas of the server component. Only a single replica is currently supported.
+                minimum: 1
+                maximum: 1
+                default: 1
+              version:
+                type: string #  e.g 1.7.Final, 1.6
+                description: The version of the debezium server component the user wishes to deploy in the cluster.
+              config:
+                type: object
+                description: The Debezium server configuration options, split into sensitive and non-sensitive options.
+                properties:
+                  configMapName:
+                    type: string
+                    description: The name of the ConfigMap containing non-senstive server configuration data.
+                                 The ConfigMap object must exist in the same namespace as this custom resource.
+                  secretName:
+                    type: string
+                    description: The name  of the Secret containing sensitive server configuration data (e.g usernames/passwords).
+                                 The Secret object must exist in the same namespace as this custom resource.
+              sourceSystem:
+                type: object
+                required: [service]
+                description: A specification of the source system componnent, in particular the Service over which the server component can access it.
+                properties:
+                  service:
+                    type: object
+                    required: [name, port]
+                    properties:
+                      name:
+                        type: string
+                        description: TODO
+                      port:
+                        type: integer
+                        description: The service port.
+                      namespace:
+                        type: string
+                        description: TODO
+              targetSystem:
+                type: object
+                required: [service]
+                description: A specification of the target system componnent, in particular the Service over which the server component can access it.
+                properties:
+                  service:
+                    type: object
+                    required: [name]
+                    properties:
+                      name:
+                        type: string
+                        description: TODO
+                      port:
+                        type: integer
+                        description: The service port.
+                      namespace:
+                        type: string
+                        description: TODO
+              
+          status:
+            type: object
+            description: The status of a DebeziumServer resource that indicates if the source and target systems are running and ready to service requests.
+            properties:
+              ready:
+                type: string
+                description: Whether the server deployment is up and running.
+              connectedToSource:
+                type: boolean
+                description: Whether the server successfully connected to the source system.
+                default: false
+              connectedToSink:
+                type: boolean
+                description: Whether the server successfully connected to the sink system.
+                default: false
