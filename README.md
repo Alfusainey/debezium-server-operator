@@ -1,7 +1,7 @@
 # Debezium Server Operator
 A kubernetes operator for easy deployment and management of a Debezium Server installation.
 
-#####Overview
+#### Overview
 The operator deploys a user desired version of the Debezium server application in k8s and manages the deployment. 
 The operator does this by watching the Kubernetes apiserver  for changes to DebeziumServer custom resources and the deployment created for the server application. The custom resource provides custom fields that users can use to specify the desired number of instances of the server they want to run, together with a source system and a  target message broker they want to use.
 
@@ -22,12 +22,12 @@ The diagram below is a higher level view of the k8s resources comprising the ser
 The current (prototype) implementation of the operator does not create nor manages the resources for the source system and target message broker and requires users to first create those resources. Those resources can be provisioned manually or using another k8s operator (e.g using strimzi to install/manage Kafka as target message broker). Therefore, the operator does not know anything about deployments for the source and target message broker. The only requirement is that users must provide the services over which the source and target systems can be accessed by the server. 
 The operator also requires all resources to exist in the same namespace as the custom resource object. This is a current limitation of this prototype and will be addressed in subsequent commits.
 
-##### TODO:
+#### TODO:
 - Currently, only a single deployment of Debezium server is allowed.
 - Operator should watch changes to the server ConfigMap and Secret objects and restart the pod running the server to pick up the changes
 - Operator should watch changes to source and sink services
 
-##### Demo
+#### Demo
 We will walk through a sample demo of the operator were we use *MySQL* as source system and *Apache Kafka* as target message broker. For the source system, we will create a deployment and expose it through a headless service. For Apache Kafka, we will create a deployment and service for both Kafka and Zookeeper. All deployments in this demo will contain a single replica pod.
 
 The demo assumes that you have a k8s cluster running and the kubectl CLI is configured to communicate with the k8s API.
@@ -129,7 +129,7 @@ kubectl get deploy,pods
 
 ##### Viewing change events
 At this point, you can create a MySQL client that connects to the `source-service` to insert some records into the MySQL database and watch how the server
-forwards the changes to Kafka. To see the changes injested into Kafka, you can start a pod running. You can use the `watch-topic` utitility used in the Debezium tutorial website to view the changes forwaded to Kafka. 
+forwards the changes to Kafka. You can use the `watch-topic` utitility used in the Debezium tutorial website to view the changes forwaded to Kafka. 
 
 ##### Delete custom resource
 Finally, deleting the custom resource will delete the deployment that it created
