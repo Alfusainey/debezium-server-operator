@@ -28,7 +28,7 @@ spec:
       serviceAccountName: ds
       containers:
       - name: ds
-        image: alfu/debezium-server-operator:1.8.0-SNAPSHOT
+        image: alfu/debezium-server-operator:0.12
         imagePullPolicy: Always #IfNotPresent
 ---
 # Creates a global policy role
@@ -45,7 +45,8 @@ rules:
   - deployments
   - services
   - pods
-  - pods/exec # TODO: do we need this?
+  - configmaps
+  - secrets
   verbs:
   - '*'
 - apiGroups:

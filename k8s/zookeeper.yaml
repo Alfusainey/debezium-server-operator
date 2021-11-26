@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: zookeeper-service
-  namespace: dbz-test
+  namespace: default
 spec:
   selector:
     app: zookeeper
@@ -21,7 +21,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: zookeeper
-  namespace: dbz-test
+  namespace: default
   labels:
     app: zookeeper
 spec:
